@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+  <title>Movietimes - Home</title>
+</head>
+<body>
+  
+<div class="login-form">
+  <form method="post" action="/login_validation">
+    <label for="email">Email:</label>
+    <input type="email" id="email" name="email" required>
+    
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    
+    <input type="submit" value="Login">
+   
+  </form>
+  <br>
+  <input type="submit" value="Register">
+</div>
+</body>
+<html>

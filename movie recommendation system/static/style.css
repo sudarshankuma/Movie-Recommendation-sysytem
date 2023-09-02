@@ -1,0 +1,388 @@
+body{
+background-color:white;
+     background-image: url('background.jpg'); 
+    background-size: cover;
+    height:100%;
+  
+}
+
+/* Import website font */
+@import url('https://stockfont.org/?ce2e9ac4b29247ba5052b77b46d29fc9ebea3bc0c7da76c24d106c3c8ff42721');
+
+* {margin: 0; padding: 0;}
+
+nav ul ul {overflow: hidden; position: absolute; display: block; background-color: #333; width: 200px; margin-left: 20px; max-height: 0px; -webkit-transition: max-height 0.5s; transition: max-height 1s;}
+
+nav li:hover ul {  max-height: 220px; overflow: auto;}
+nav ul ul li {float: none; width: auto; }
+
+html {font-family: 'Oxygen-Regular', times, verdana, sans-serif; }
+
+
+nav {background-color:blue; overflow: auto; padding:2px;}
+nav ul {width: 1000px; margin: auto; display: block; list-style-type: none;}
+nav ul li {width: 25%; float: left; overflow: auto; text-align: center;}
+nav a {color: white;  padding-top: 10px; padding-bottom: 15px; display: block; text-decoration: none;}
+
+header section {  display: block;}
+
+header h1 {font-weight: bold; font-style: italic;}
+
+ /* CSS styles for the navigation bar */
+
+/* CSS styles for the navigation bar */
+header {
+  background-color: blue;
+  padding: 10px;
+  color: white;
+}
+
+nav ul {
+  list-style-type: none;
+  display: flex;
+  justify-content: center;
+
+
+}
+
+nav ul li {
+  margin-right: 20px;
+}
+
+nav a {
+  text-decoration: none;
+  color: white;
+}
+
+/* CSS styles for the logo */
+.logo-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.logo {
+  width: 50px;
+  height: 50px;
+}
+
+h1 {
+  margin-left: 10px;
+}
+
+/* CSS styles for the welcome section */
+.welcome {
+  text-align: center;
+}
+
+/* CSS styles for the movies grid */
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+}
+
+.movie-item {
+  text-align: center;
+}
+
+.movie-image {
+  width: 100%;
+  height: auto;
+  max-height: 200px;
+}
+
+.movie-item h4 {
+  margin-top: 10px;
+}
+.rating-container {
+  text-align: center;
+  margin-top: 50px;
+}
+
+.rating-container h2 {
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.rating-stars {
+  display: inline-block;
+}
+
+.rating-stars input[type="radio"] {
+  display: none;
+}
+
+.rating-stars label {
+  float: right;
+  cursor: pointer;
+  font-size: 24px;
+  color: #ccc;
+}
+
+.rating-stars label:before {
+  content: "\2606";
+}
+
+.rating-stars input[type="radio"]:checked ~ label:before,
+.rating-stars label:hover:before {
+  content: "\2605";
+  color: #f8ca00;
+}
+
+button[type="submit"] {
+  display: block;
+  margin-left: 700px;
+
+  margin-top: 20px;
+  padding: 10px 20px;
+  background-color: #f8ca00;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.movie-item p {
+  margin-bottom: 10px;
+}
+
+
+/* CSS styles for the logo */
+.logo {
+
+  width: 70px;
+  height:62px; /* Adjust the width as needed */
+
+}
+
+.logo-image{
+  float: left;
+}
+ .form form input {
+  margin-top: 20px;
+  width: 30%;
+  height: 30px;
+  margin-left: 35%;
+
+ }
+ .form form button {
+  margin-top: 20px;
+  margin-left: 48%;
+
+ }
+ .form h2 {
+margin-top: 2%;
+  text-align:center ;
+  font-size: 50px;
+  color:red;
+ }
+ .top h2{
+  margin-top: 2%;
+  text-align: center;
+  color:red;
+  font-size: 50px;
+ }
+ .welcome h2{
+  margin-top: 5%;
+  text-align: center;
+  color:red;
+  font-size: 50px;
+ }
+ .grid-container {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr); /* Adjust the number as per your desired layout */
+  gap: 5px; /* Adjust the gap between grid items */
+}
+
+.grid-item {
+  text-align: center;
+}
+.genre-title {
+  margin-bottom: 10px;
+  text-align: center;
+  font-size: bold;
+  color: red;
+}
+
+
+.movie-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 10px;
+}
+
+.movie-item {
+  text-align: center;
+}
+
+.movie-item img {
+  width: 50%;
+  height: auto;
+  max-height: 200px;
+}
+
+.movie-item h3 {
+  margin-top: 10px;
+}
+
+
+.login-form {
+  max-width: 500px;
+  margin: 0 auto;
+  padding: 100px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  margin-top:220px;
+}
+
+/* Add custom CSS for the search bar */
+
+.search-bar {
+  margin-top: -50px;
+  text-align: center;
+}
+
+
+.search-bar input[type="text"] {
+  margin-top: 10px;
+  margin-right: 5px;
+  margin-left: 1300px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  padding: 5px;
+}
+
+.search-bar button {
+  margin-left: 1350px;
+  padding: 5px 10px;
+  background-color: #4CAF50;
+  color: white;
+  border: none;
+  border-radius: 3px;
+}
+
+
+
+/* Add custom CSS for movie items */
+.movies-container {
+  margin-top: 20px;
+  margin-left: 70px;
+}
+
+.movies-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  grid-gap: 20px;
+}
+
+.movie-item {
+  width:250px;
+  background-color: #4CAF50;
+  padding: 10px;
+  height:100px;
+  color: white;
+  border-radius: 4px;
+}
+
+.movie-item h4 {
+  margin-top: 0;
+  margin-bottom: 5px;
+}
+
+.movie-item p {
+  margin: 0;
+}
+
+.movie-image {
+  width: 100%;
+  height: auto;
+  margin-top: 10px;
+}
+/* Form input fields */
+.login-form input[type="email"],
+.login-form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Form submit button */
+.login-form input[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: black;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Form submit button hover effect */
+.login-form input[type="submit"]:hover {
+  background-color:black;
+}
+
+.register-form {
+ 
+  max-width: 400px;
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #f2f2f2;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+  margin-top:200px;
+}
+
+/* Form input fields */
+.register-form input[type="text"],
+.register-form input[type="email"],
+.register-form input[type="password"] {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 10px;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  box-sizing: border-box;
+}
+
+/* Form submit button */
+.register-form input[type="submit"] {
+  width: 100%;
+  padding: 10px;
+  background-color: #4caf50;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+/* Form submit button hover effect */
+.register-form input[type="submit"]:hover {
+  background-color: #45a049;
+}
+.feedback-section {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  text-align: right;
+}
+
+.feedback-section textarea {
+  width: 200px;
+  height: 50px;
+  margin-top: 400px;
+  margin-right: 650px;
+  resize: none;
+}
+
+.feedback-section button[type="submit"] {
+  display: block;
+  margin-left: auto;
+  margin-right: 0;
+  margin-right: 680px;
+}

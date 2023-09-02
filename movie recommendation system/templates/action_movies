@@ -1,0 +1,1 @@
+{% comment %} <img src="{{ url_for('static', filename='movie_image_placeholder.jpg') }}" alt="Movie Image" class="movie-image" /> {% endcomment %}

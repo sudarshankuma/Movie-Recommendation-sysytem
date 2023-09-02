@@ -1,0 +1,15 @@
+{% extends 'index.html' %}
+
+{% block content %}
+  <h1 class="genre-title">{{ selected_genre }}</h1>
+  <div class="movie-grid">
+    {% for row in data.iterrows() %}
+      {% if row[1]['Genre'] == selected_genre %}
+      <div class="movie-item">
+        <img src="{{ row[1]['Image_URL'] }}" alt="Movie Image">
+        <h3>{{ row[1]['Title'] }}</h3>
+      </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+{% endblock %}
