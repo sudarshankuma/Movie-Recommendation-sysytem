@@ -1,6 +1,7 @@
 {% extends 'index.html' %}
 
 {% block content %}
+
   <h1 class="genre-title">{{ selected_genre }}</h1>
   <div class="movie-grid">
     {% for row in data.iterrows() %}
@@ -12,4 +13,5 @@
       {% endif %}
     {% endfor %}
   </div>
+  
 {% endblock %}

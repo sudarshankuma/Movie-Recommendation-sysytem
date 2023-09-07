@@ -3,8 +3,12 @@ import mysql.connector
 import os
 import traceback
 import pandas as pd
+import numpy as np
 from math import sqrt
 from werkzeug.security import generate_password_hash, check_password_hash
+
+from  recommendation_part.recommend import preprocess_query, convert_to_array, get_average_vector, find_top_n_nearest_vector_indices
+
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -162,6 +166,11 @@ def hello_world():
         cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 20")
         movies = cursor.fetchall()
 
+        category_query = "SELECT DISTINCT Genre FROM movies"
+        cursor.execute(category_query)
+        categories = cursor.fetchall()
+        print("Categories : ", categories)
+
         if 'user_id' in session:
             user_id = session['user_id']
             email_query = "SELECT email FROM users WHERE id = %s"
@@ -169,11 +178,11 @@ def hello_world():
             user_email = cursor.fetchone()[0]
             cursor.close()
             cnx.close()
-            return render_template('index.html', user_email=user_email, movies=movies)
+            return render_template('index.html', user_email=user_email, movies=movies, categories=categories)
         else:
             cursor.close()
             cnx.close()
-            return render_template('index.html', movies=movies)
+            return render_template('index.html', movies=movies, categories=categories)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return "Error occurred while retrieving movies"
@@ -228,20 +237,18 @@ def submit_rating():
 
 
 
-
-
 @app.route('/popular_movies.html')
 def popular_movies():
     image_url = url_for('static', filename='logo.jpg')
     return render_template('popular_movies.html', image_url=image_url)
 
 
-@app.route('/register.html')
+@app.route('/register')
 def register():
     return render_template('register.html')
 
 
-@app.route('/login.html')
+@app.route('/login')
 def login():
     return render_template('login.html')
 
@@ -291,13 +298,14 @@ def add_user():
         cursor.execute(query, values)
         cnx.commit()
 
-        return "User added successfully"
+        return redirect('/')
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return "Error occurred while adding user"
     finally:
         cursor.close()
         cnx.close()
+
 
 @app.route('/logout')
 def logout():
@@ -306,11 +314,61 @@ def logout():
     return redirect('/login.html')
 
 
-@app.route('/recommend.html')
-def recommend():
+# Load the dataset
+df = pd.read_excel('./preprocessed_imdb.xlsx')
+
+
+# Define the API endpoint for movie recommendations
+@app.route('/recommend', methods=['GET'])
+def recommend_movies():
+
+    user_input = request.args.get('user_input')
+    page = request.args.get('page', default=1, type=int)
+    in_page = request.args.get('in_page', default=10, type=int)
+
     image_url = url_for('static', filename='logo.jpg')
-    return render_template('recommend.html', image_url=image_url)
+
+    if user_input is None:
+        return render_template('recommend.html', image_url=image_url)
+    else:
+        user_query = preprocess_query(user_input)  # Call function to preprocess user input
+
+        # function to get the average vector for the user query
+        user_query_vector = get_average_vector(user_query)
+
+        print("User query vector : ", user_query_vector)
+
+        # Use the 'convert_to_array' function to convert the 'vector' column
+        df['vector'] = df['vector'].apply(convert_to_array)
+
+        # Convert df['vector'] to a 2D array (required for cosine_similarity)
+        df_vectors = np.array(df['vector'].tolist())
+
+        # Find the indices and similarity scores of the top 'n' nearest vectors in df['vector'] to the user_query_vector
+        top_n_indices, top_n_scores = find_top_n_nearest_vector_indices(user_query_vector, df_vectors, n=page * in_page)
+
+        # Get the details of the top 'n' nearest movies and their genres
+        top_n_movies = df.loc[top_n_indices]
+
+        # Add the similarity scores to the DataFrame
+        top_n_movies['Similarity Score'] = top_n_scores
+
+        top_n_movies = top_n_movies[['Title', 'Genre', 'Similarity Score']]        
+        
+        print("Top n movies : ", top_n_movies)
+        return render_template('recommend.html', image_url=image_url, user_input=user_input, top_n_movies=top_n_movies)
+
+
+
+
+
+# @app.route('/recommend')
+# def recommend():
+#     image_url = url_for('static', filename='logo.jpg')
+    
+#     return render_template('recommend.html', image_url=image_url)
 
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.debug = True
+    app.run()
