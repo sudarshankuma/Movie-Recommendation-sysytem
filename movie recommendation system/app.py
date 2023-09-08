@@ -329,6 +329,7 @@ def recommend_movies():
     image_url = url_for('static', filename='logo.jpg')
 
     if user_input is None:
+        print("From Initial")
         return render_template('recommend.html', image_url=image_url)
     else:
         user_query = preprocess_query(user_input)  # Call function to preprocess user input
