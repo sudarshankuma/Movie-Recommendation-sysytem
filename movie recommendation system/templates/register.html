@@ -1,26 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
-  <title>Movietimes - Home</title>
-</head>
-<body>
-  <div class="register-form">
-    <form method="post" action="/add_user">
-      <label for="name">Fullname:</label>
-      <input type="text" id="name" name="name" required>
-      
-      <label for="email">Email:</label>
-      <input type="email" id="email" name="email" required>
-      
-      <label for="password">Password:</label>
-      <input type="password" id="password" name="password" required>
-      
-      <input type="submit" value="Register">
-     
-    </form>
-    <br>
-    <input type="submit" value="Login">
+{% extends "index.html" %}
+
+{% block content %}
+<body class="container">
+  <div class="row mt-5">
+    <div class="col-md-3"></div>
+    <div class="col-md-6 bg-primary">
+      <div class="row">
+        <h2 class="text-center text-white">Register</h2>
+        <hr>
+      </div>
+      <div class="row">
+        <form method="post" action="/add_user" class="form-group">
+          <div class="row p-3">
+            <label for="name">Fullname:</label>
+            <input type="text" id="name" name="name" class="form-control" required>  
+          </div>
+          <div class="row p-3">
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" class="form-control" required>  
+          </div>
+          <div class="row p-3">
+            <label for="password">Password:</label>
+            <input type="password" id="password" class="form-controls" name="password" required>  
+          </div>
+          <div class="row p-3">
+            <input type="submit" value="Register" class="btn btn-success">
+          </div>
+        </form>
+        <blockquote class="p-3">
+          <p>Already have an account? <a href="/login">Login</a></p>
+        </blockquote>
+
+      </div>    
+    </div>
+    <div class="col-md-3"></div>
   </div>
 </body>
-<html>
+{% endblock %}
+

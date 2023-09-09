@@ -1,57 +1,40 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
-  <title>Movietimes - Rating</title>
-</head>
-<body>
-  <header>
-    <nav>
-      <div class="logo-container">
-        <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="logo" />
-        <h1>Movietimes</h1>
+{% extends "index.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+
+
+<section class="container">
+  <div class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="text-center">
+        <h2 class="text-warning mb-4">Rate the Movie - {{ movie_title }}</h2>
       </div>
-      <ul>
-        <li><a href="/">Home</a></li>
-        <li><a href="/popular_movies.html">Popular Movies</a></li>
-        <li>
-          <a href="#">Genres</a>
-          <ul>
-            <!-- Add genre-specific links here -->
-          </ul>
-        </li>
-        <li><a href="/recommend.html">Recommend</a></li>
-        <li><a href="/logout">Logout</a></li>
-      </ul>
-    </nav>
-    <div class="search-bar"><!-- Move the search bar outside the navigation -->
-      <form action="/search" method="GET"> <!-- Assuming the search action is handled by "/search" endpoint -->
-        <input type="text" placeholder="Search movies..." name="query">
-        <button type="submit">Search</button>
-      </form>
+      <div class="text-center">
+        <form action="/submit_rating" method="POST">
+          <input type="hidden" name="id" value="{{ id }}">
+          <input type="hidden" name="title" value="{{ movie_title }}">
+          <div class="rating">
+            <input type="radio" id="star5" name="rating" value="5">
+            <label for="star5"></label>
+            <input type="radio" id="star4" name="rating" value="4">
+            <label for="star4"></label>
+            <input type="radio" id="star3" name="rating" value="3">
+            <label for="star3"></label>
+            <input type="radio" id="star2" name="rating" value="2">
+            <label for="star2"></label>
+            <input type="radio" id="star1" name="rating" value="1">
+            <label for="star1"></label>
+          </div>
+          <div class="text-center mt-4">
+            <button type="submit" class="btn btn-secondary">Submit Rating</button>
+          </div>
+        </form>
+      </div>
     </div>
-  </header>
+  </div>
+</section>
 
-  <section class="rating-container">
-    <h2>Rate the Movie - {{ movie_title }}</h2>
-    <form action="/submit_rating" method="POST">
-      <input type="hidden" name="id" value="{{ id }}">
-      <input type="hidden" name="title" value="{{ movie_title }}">
-      <div class="rating-stars">
-        <input type="radio" id="star5" name="rating" value="5">
-        <label for="star5"></label>
-        <input type="radio" id="star4" name="rating" value="4">
-        <label for="star4"></label>
-        <input type="radio" id="star3" name="rating" value="3">
-        <label for="star3"></label>
-        <input type="radio" id="star2" name="rating" value="2">
-        <label for="star2"></label>
-        <input type="radio" id="star1" name="rating" value="1">
-        <label for="star1"></label>
-      </div>
-      <button type="submit">Submit Rating</button>
-    </form>
 
-  </section>
-</body>
-</html>
+{% endblock %}
+

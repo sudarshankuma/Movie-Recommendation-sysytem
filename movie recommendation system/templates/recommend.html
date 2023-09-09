@@ -1,64 +1,48 @@
+{% extends "index.html" %}
 
-    <!DOCTYPE html>
-    <html>
-    <head>
-      <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
-      <title>Movietimes - Home</title>
-      
-    </head>
-    <body>
-      <header>
-        <nav>
-          <div class="logo-container">
-            <img src="{{ url_for('static', filename='logo.jpg') }}" alt="Logo" class="logo" />
-            <h1>Movietimes</h1>
-          </div>
-          <ul>
-            <li><a href="/">Home</a></li>
-            <li><a href="/popular_movies.html">Popular Movies</a></li>
-            <li>
-              <a href="#">Genres</a>
-              <ul>
-                <!-- Add genre-specific links here -->
-              </ul>
-            </li>
-            <li><a href="/recommend.html">Recommend</a></li>
-            <li><a href="/logout">Logout</a></li>
-          </ul>
-        </nav>
-        <div class="search-bar"><!-- Move the search bar outside the navigation -->
-          <form action="/search" method="GET"> <!-- Assuming the search action is handled by "/search" endpoint -->
-            <input type="text" placeholder="Search movies..." name="query">
-            <button type="submit">Search</button>
-          </form>
+
+{% block content %}
+
+<body class="container">
+
+  <div class="row mt-5">
+    <div class="col-md-4">
+      <h2 class="text-center text-white"> Recommend Me:</h2>
+    </div>
+  
+    <div class="col-md-8"> <!-- Use col-md-8 to occupy 8 columns and place the form in the same row -->
+      <form method="get" action="/recommend" class="text-center">
+        <div class="input-group">
+          <input type="text" class="form-control" name="user_input" placeholder="Search Movie...">
+          <button type="submit" class="btn btn-warning">Recommend</button>
         </div>
-      </header>
-    
-      <section class="welcome">
-     
-        <h2>Recommendation</h2>
-    <form>
-       
-        <input type="text" placeholder="search movies.........."/>
-        <button>Recommend</button>
-    </form>
-        {% if user_email %}
-        <section class="movies-container">
-          <h3>Latest Movies</h3>
-          <div class="movies-grid">
-            {% for movie in movies %}
-              <div class="movie-item">
-                <h4><a>{{ movie[1] }}</a></h4>
-    <br>
-    
-                <p>Genre: {{ movie[0] }}</p>
-                
-                <a href="/rating/{{ movie[1] }}">rate the movie</a>
-              </div>
-            {% endfor %}
+      </form>         
+    </div>
+  </div>
+
+{% if user_input %}
+  <div class="row">
+    <h2 class="text-light"> Query : {{ user_input }} </h2>
+  </div>
+{% endif %}
+
+{% if top_n_movies %}
+  <div class="row mt-5">
+    <div class="grid-container">
+      <div class="row">
+        {% for movie in top_n_movies %}
+          <div class="col-md-3 grid-item">
+            <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
+            <h2 class="text-white"> {{ movie.Title }} </h2>
+            <p class="text-white">Genre: {{ movie.Genre }}</p>
           </div>
-        </section>
-      {% endif %}
-    </body>
-    </html>
-    
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+{% endif %}
+
+</body>
+
+{% endblock %}
+  

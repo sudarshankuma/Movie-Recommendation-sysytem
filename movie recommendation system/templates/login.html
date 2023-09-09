@@ -1,24 +1,31 @@
-<!DOCTYPE html>
-<html>
-<head>
-  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
-  <title>Movietimes - Home</title>
-</head>
-<body>
+{% extends "index.html" %}
+
+{% block content %}
+<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+
+<body class="container">
+
+    <div class="row p-3 m-5">
+      <div class="col-md-3"></div>
+      <div class="col-md-6  bg-light">
+        <h2 class="text-center">Login</h2>
+        <form method="post" action="/login_validation" class="text-center">
+          <div class="input-group">
+            <input type="text" class="form-control" placeholder="Email" name="email">
+          </div>
+          <br>
+          <div class="input-group">
+            <input type="password" class="form-control" placeholder="Password" name="password">
+          </div>
+          <br>
+          <button type="submit" class="btn btn-warning">Login</button>
+        </form>
+        <blockquote>
+          <p>Don't have an account? <a href="/register" class="text-success">Register</a></p>
+        </blockquote>
+      </div>
+    </div>
   
-<div class="login-form">
-  <form method="post" action="/login_validation">
-    <label for="email">Email:</label>
-    <input type="email" id="email" name="email" required>
-    
-    <label for="password">Password:</label>
-    <input type="password" id="password" name="password" required>
-    
-    <input type="submit" value="Login">
-   
-  </form>
-  <br>
-  <input type="submit" value="Register">
-</div>
 </body>
-<html>
+
+{% endblock %}
