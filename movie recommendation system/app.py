@@ -4,10 +4,14 @@ import os
 import traceback
 import pandas as pd
 import numpy as np
+import nltk
 from math import sqrt
 from werkzeug.security import generate_password_hash, check_password_hash
 
-from  recommendation_part.recommend import preprocess_query, convert_to_array, get_average_vector, find_top_n_nearest_vector_indices
+from  recommendation_part.recommend import preprocess_query, get_average_vector, find_top_n_nearest_vector_indices
+
+nltk.download('punkt')
+nltk.download('stopwords')
 
 
 app = Flask(__name__)
@@ -157,6 +161,7 @@ def fetch_datasets():
 
 
 
+
 @app.route('/')
 def hello_world():
     cnx = create_connection()
@@ -219,7 +224,9 @@ def submit_rating():
             if user_id is not None:  # Check if the user ID exists
                 cursor.execute(insert_query, (movie_id, movie_title, rating, user_id))
                 cnx.commit()
-                return "Rating submitted successfully"
+                return redirect('/')
+                # return "Rating submitted successfully"
+
             else:
                 return "User ID not found"
         else:
@@ -234,7 +241,6 @@ def submit_rating():
     finally:
         cursor.close()
         cnx.close()
-
 
 
 @app.route('/popular_movies.html')
@@ -266,7 +272,8 @@ def login_validation():
         query = "SELECT * FROM `users` WHERE `email` = %s AND `password` = %s"
         values = (email, password)
         cursor.execute(query, values)
-        user = cursor.fetchone()
+        user = cursor.fetchone()  # Fetch the first row
+        print("User : ", user)
 
         if user is not None:
             # User found, store user details in session
@@ -282,6 +289,39 @@ def login_validation():
     finally:
         cursor.close()
         cnx.close()
+
+
+# @app.route('/login_validation', methods=['POST'])
+# def login_validation():
+#     email = request.form.get('email')
+#     password = request.form.get('password')
+
+#     cnx = create_connection()
+#     cursor = cnx.cursor()
+
+#     try:
+#         # Execute a SELECT query to fetch the user based on email and password
+#         query = "SELECT * FROM `users` WHERE `email` = %s AND `password` = %s"
+#         values = (email, password)
+#         cursor.execute(query, values)
+#         user = cursor.fetchone()
+#         user = cursor.fetchone()
+
+#         if user is not None:
+#             # User found, store user details in session
+#             session['user_id'] = user[0]
+#             session['user_email'] = user[1]
+#             return redirect('/')
+#         else:
+#             return render_template('login.html', error="Invalid email or password")
+#     except Exception as e:
+#         # Handle any exceptions that might occur
+#         traceback.print_exc()  # Print the traceback to see the specific error
+#         return "Error occurred while validating login"
+#     finally:
+#         cursor.close()
+#         cnx.close()
+
 
 @app.route('/add_user', methods=['POST'])
 def add_user():
@@ -311,11 +351,25 @@ def add_user():
 def logout():
     if 'user_id' in session:
         session.pop('user_id')
-    return redirect('/login.html')
+    return redirect('/login')
+
+
+
+
+# Function to convert the string representation to NumPy array
+def convert_to_array(vector_str):
+    return np.array([float(num) for num in vector_str.replace('[','').replace(']','').split()])
 
 
 # Load the dataset
 df = pd.read_excel('./preprocessed_imdb.xlsx')
+# Use the 'convert_to_array' function to convert the 'vector' column
+df['vector'] = df['vector'].apply(convert_to_array)
+
+
+nltk.download('punkt')
+nltk.download('stopwords')
+
 
 
 # Define the API endpoint for movie recommendations
@@ -332,16 +386,14 @@ def recommend_movies():
         print("From Initial")
         return render_template('recommend.html', image_url=image_url)
     else:
+        print("Hello")
         user_query = preprocess_query(user_input)  # Call function to preprocess user input
-
+        print("User query : ", user_query)
         # function to get the average vector for the user query
         user_query_vector = get_average_vector(user_query)
 
         print("User query vector : ", user_query_vector)
-
-        # Use the 'convert_to_array' function to convert the 'vector' column
-        df['vector'] = df['vector'].apply(convert_to_array)
-
+        
         # Convert df['vector'] to a 2D array (required for cosine_similarity)
         df_vectors = np.array(df['vector'].tolist())
 
@@ -354,20 +406,14 @@ def recommend_movies():
         # Add the similarity scores to the DataFrame
         top_n_movies['Similarity Score'] = top_n_scores
 
-        top_n_movies = top_n_movies[['Title', 'Genre', 'Similarity Score']]        
-        
-        print("Top n movies : ", top_n_movies)
-        return render_template('recommend.html', image_url=image_url, user_input=user_input, top_n_movies=top_n_movies)
+        top_n_movies = top_n_movies[['Title', 'Genre', 'Similarity Score']]     
 
-
-
-
-
-# @app.route('/recommend')
-# def recommend():
-#     image_url = url_for('static', filename='logo.jpg')
+        top_n_movies_list = top_n_movies.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
     
-#     return render_template('recommend.html', image_url=image_url)
+        print("Top n movies : ", top_n_movies_list)
+        return render_template('recommend.html', image_url=image_url, user_input=user_input, top_n_movies=top_n_movies_list)
+
+
 
 
 if __name__ == "__main__":

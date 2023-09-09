@@ -20,24 +20,27 @@
     </div>
   </div>
 
+{% if user_input %}
   <div class="row">
-    <h2> Query : {{ user_input }} </h2>
+    <h2 class="text-light"> Query : {{ user_input }} </h2>
   </div>
-  
+{% endif %}
+
+{% if top_n_movies %}
   <div class="row mt-5">
     <div class="grid-container">
       <div class="row">
-        {% for index, row in top_n_movies.iterrows() %}
+        {% for movie in top_n_movies %}
           <div class="col-md-3 grid-item">
             <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-            <h2 class="text-white"> {{ row['Title'] }} </h2>
-            <p class="text-white">Genre: {{ row['Genre'] }}</p>
+            <h2 class="text-white"> {{ movie.Title }} </h2>
+            <p class="text-white">Genre: {{ movie.Genre }}</p>
           </div>
         {% endfor %}
       </div>
     </div>
   </div>
-
+{% endif %}
 
 </body>
 

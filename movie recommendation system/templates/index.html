@@ -95,35 +95,36 @@
   
 {% block content %}
 
-<main>
+<main class="container">
   <div class="row mt-5">
     <div class="text-center">
-      <h3 class="text-white">Top 20 Popular Movies</h3>
+      <!-- <h3 class="text-white">Top 20 Popular Movies</h3> -->  
+      <h3 class="text-success">Latest Movies</h3>
+      <hr>
     </div>
   </div>
 
-  <div class="row mt-5 text-success ">
-    <section class="welcome">
-      {% if user_email %}
-      <section class="movies-container">
-        <h3>Latest Movies</h3>
-        <div class="movies-grid">
+  <div class="row mt-5 text-success">
+    <section class="movies-container">
+      <div class="grid-container">
+        <div class="row">
           {% for movie in movies %}
+          <div class="col-md-3 grid-item">
+            <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" alt="Movie Poster">
             <div class="movie-item">
-              <h4><a>{{ movie[1] }}</a></h4>  <br>
-  
+              <h4><a href="#">{{ movie[1] }}</a></h4>
               <p>Genre: {{ movie[0] }}</p>
-              
+              {% if user_email %}
               <a href="/rating/{{ movie[1] }}">Rate the movie</a>
+              {% endif %}
             </div>
+          </div>
           {% endfor %}
         </div>
-      </section>
-    {% endif %}
+      </div>
     </section>
-  
   </div>
-
+  
 </main>
 {% endblock %}
 
