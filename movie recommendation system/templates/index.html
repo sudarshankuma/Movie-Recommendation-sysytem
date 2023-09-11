@@ -58,6 +58,7 @@
                 <ul class="dropdown-menu" aria-labelledby="navbarDropdownGenres">
                   <!-- Add genre-specific links here -->
                   {% for genre in categories %}
+                    {{ genre }}
                     <li class="dropdown-item"><a href="/genre/{{ genre }}">{{ genre }}</a></li>
                   {% endfor %}
                 </ul>
@@ -110,7 +111,7 @@
         <div class="row">
           {% for movie in movies %}
           <div class="col-md-3 grid-item">
-            <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" alt="Movie Poster">
+            <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" height="250px" alt="Movie Poster">
             <div class="movie-item">
               <h4><a href="#">{{ movie[1] }}</a></h4>
               <p>Genre: {{ movie[0] }}</p>

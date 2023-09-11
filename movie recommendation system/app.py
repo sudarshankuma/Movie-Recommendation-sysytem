@@ -158,10 +158,6 @@ def fetch_datasets():
 
 
 
-
-
-
-
 @app.route('/')
 def hello_world():
     cnx = create_connection()
@@ -191,6 +187,9 @@ def hello_world():
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return "Error occurred while retrieving movies"
+
+
+
 
 
 @app.route('/rating/<title>')
