@@ -49,7 +49,7 @@
               <a class="nav-link" href="/">Home</a>
             </li> -->
             <li class="nav-item ms-5">
-              <a class="nav-link text-white" href="/popular_movies.html">Popular Movies</a>
+              <a class="nav-link text-white" href="/popular_movies">Popular Movies</a>
             </li>
             <li class="nav-item dropdown ms-5">
                 <a class="nav-link dropdown-toggle text-white dropdown-toggle" id="navbarDropdownGenres" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -69,12 +69,12 @@
 
             <li class="nav-item ms-5">
               <div class="search-bar container">
-                <form action="/search" method="GET">
+                <form action="/search" method="POST">
                   <div class="input-group">
-                    <input type="text" class="form-control" placeholder="Search movies..." name="query">
-                    <button class="btn btn-outline-warning  text-white" type="submit">Search</button>
+                      <input type="text" class="form-control" placeholder="Search movies..." name="query">
+                      <button class="btn btn-outline-warning text-white" type="submit">Search</button>
                   </div>
-                </form>
+              </form>
               </div>
             </li>
         {% if user_email %}
@@ -96,12 +96,11 @@
   
 {% block content %}
 
-<main class="container">
+<main class="container mb-5">
   <div class="row mt-5">
-    <div class="text-center">
+    <div class="">
       <!-- <h3 class="text-white">Top 20 Popular Movies</h3> -->  
-      <h3 class="text-success">Latest Movies</h3>
-      <hr>
+      <h3 class="text-warning"> All Movies</h3>
     </div>
   </div>
 
@@ -113,8 +112,8 @@
           <div class="col-md-3 grid-item">
             <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" height="250px" alt="Movie Poster">
             <div class="movie-item">
-              <h4><a href="#">{{ movie[1] }}</a></h4>
-              <p>Genre: {{ movie[0] }}</p>
+              <h4><a href="/movie_details/{{ movie[1] }}">{{ movie[1] }}</a></h4>
+              <p class="text-warning">Genre: {{ movie[0] }}</p>
               {% if user_email %}
               <a href="/rating/{{ movie[1] }}">Rate the movie</a>
               {% endif %}
@@ -129,7 +128,7 @@
 </main>
 {% endblock %}
 
-<footer class="mt-5 bg-light py-2 fixed-bottom bg-transparent">
+<footer class="mt-5 bg-light py-2 fixed-bottom bg-warning">
   <div class="container text-center">
     <p class="mb-0">© 2023 Movietimes</p>
   </div>

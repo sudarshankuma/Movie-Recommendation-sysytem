@@ -41,6 +41,7 @@
           <form action="/submit_rating" method="POST">
             <input type="hidden" name="id" value="{{ id }}">
             <input type="hidden" name="title" value="{{ movie_title }}">
+             
             <div class="rating">
               <input type="radio" id="star1" name="rating" value="1">
               <label for="star1"></label>
@@ -52,7 +53,7 @@
               <label for="star4"></label>
               <input type="radio" id="star5" name="rating" value="5">
               <label for="star5"></label>
-              
+
             </div>
             <div class="text-center mt-4">
               <button type="submit" class="btn btn-secondary">Submit Rating</button>
