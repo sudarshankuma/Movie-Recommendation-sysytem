@@ -7,8 +7,12 @@ import numpy as np
 import nltk
 from math import sqrt
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from sklearn.neighbors import NearestNeighbors
 from  recommendation_part.recommend import preprocess_query, get_average_vector, find_top_n_nearest_vector_indices
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -158,10 +162,6 @@ def fetch_datasets():
 
 
 
-
-
-
-
 @app.route('/')
 def hello_world():
     cnx = create_connection()
@@ -193,16 +193,37 @@ def hello_world():
         return "Error occurred while retrieving movies"
 
 
+
 @app.route('/rating/<title>')
 def movie_rating(title):
-    return render_template('ratings.html', movie_title=title)
+    # Fetch movie details from the database
+    cnx = create_connection()
+    cursor = cnx.cursor()
+    query = "SELECT * FROM movies WHERE Title = %s"
+    cursor.execute(query, (title,))
+    movie = cursor.fetchone()
+    cursor.close()
+    cnx.close()
+    print("Movie : ", movie)
+    movie_id = movie[4]
+    
+    try:
+        user_email = session.get('user_email')
+        return render_template('ratings.html', movie_title=title, id=movie_id, user_email=user_email )
+    except:
+        return render_template('ratings.html', movie_title=title, id=movie_id )
 
 
 
 @app.route('/genre/<genre>')
 def show_genre(genre):
     image_url = url_for('static', filename='logo.jpg')
-    return render_template('genre.html', selected_genre=genre, image_url=image_url)
+    try:
+        user_email = session.get('user_email')
+        return render_template('genre.html', selected_genre=genre, image_url=image_url, user_email=user_email)
+    except:
+        return render_template('genre.html', selected_genre=genre, image_url=image_url)
+
 
 
 @app.route('/submit_rating', methods=['POST'])
@@ -219,10 +240,12 @@ def submit_rating():
     try:
         if movie_title is not None and movie_title.strip() != "":
             # Save the rating to the database
-            insert_query = "INSERT INTO ratings (movie_id, movie_title, rating, ruser) VALUES (%s, %s, %s, %s)"
+            insert_query = "INSERT INTO newrating (user_id, movie_id, ratings) VALUES (%s, %s, %s)"
+            # insert_query = "INSERT INTO ratings (movie_id, movie_title, rating, ruser) VALUES (%s, %s, %s, %s)"
 
             if user_id is not None:  # Check if the user ID exists
-                cursor.execute(insert_query, (movie_id, movie_title, rating, user_id))
+                cursor.execute(insert_query, (user_id, movie_id, rating))
+                # cursor.execute(insert_query, (movie_id, movie_title, rating, user_id))
                 cnx.commit()
                 return redirect('/')
                 # return "Rating submitted successfully"
@@ -242,11 +265,63 @@ def submit_rating():
         cursor.close()
         cnx.close()
 
+def trending_movies():
+    cnx = create_connection()
+    cursor = cnx.cursor()
 
-@app.route('/popular_movies.html')
+    try:
+        cursor.execute("SELECT * FROM movies ORDER BY Rating DESC LIMIT 10")
+        movies = cursor.fetchall()
+        return movies
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return "Error occurred while retrieving movies"
+    finally:
+        cursor.close()
+        cnx.close()
+
+@app.route('/popular_movies')
 def popular_movies():
     image_url = url_for('static', filename='logo.jpg')
-    return render_template('popular_movies.html', image_url=image_url)
+    trending_movie_list = trending_movies()  # Call Function for trending movies
+    print("Trending Movies : ", trending_movie_list)
+    try:
+        user_email = session.get('user_email')
+        return render_template('popular_movies.html', image_url=image_url, user_email=user_email, popular_movies = trending_movie_list)            
+    except:
+        return render_template('popular_movies.html', image_url=image_url, popular_movies=trending_movie_list)
+
+
+@app.route('/search', methods=['POST'])
+def search():
+    user_input = request.form.get('query')
+
+    print("User Input : ", user_input)
+
+    try:
+        cnx = create_connection()
+        cursor = cnx.cursor()
+
+        # SQL query to search for movies based on user input
+        query = "SELECT * FROM movies WHERE Title LIKE %s"
+        cursor.execute(query, ("%" + user_input + "%",))
+        movies = cursor.fetchall()
+        print("Movies : ", movies)
+
+        cursor.close()
+        cnx.close()
+
+        try:
+            user_email = session.get('user_email')
+            return render_template('search.html', movies=movies, user_input=user_input, user_email=user_email)
+        except:
+            return render_template('search_result.html', movies=movies, user_input=user_input)
+
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return "Error occurred while retrieving movies"
+
+
 
 
 @app.route('/register')
@@ -354,6 +429,123 @@ def logout():
     return redirect('/login')
 
 
+def load_ratings_data():
+    cnx = create_connection()
+    cursor = cnx.cursor()
+
+    try:
+        cursor.execute("SELECT * FROM newrating")
+        ratings = cursor.fetchall()
+        return ratings
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        return "Error occurred while retrieving ratings"
+    finally:
+        cursor.close()
+        cnx.close()
+
+def knn_recommendation(user_id_input):
+    # Load the ratings data
+    ratings = load_ratings_data()
+    print("Ratings : ", ratings)
+    # Convert the ratings data into a DataFrame
+    ratings_df = pd.DataFrame(ratings, columns=['rating_id', 'user_id', 'movie_id', 'ratings', 'timestamp'])
+    print("Ratings Dataframe : ", ratings_df)
+    # Create a user-item matrix
+    user_item_matrix = ratings_df.pivot(index='user_id', columns='movie_id', values='ratings')
+    print("User Item Matrix : ", user_item_matrix)
+    # Fill missing values with zeros
+    user_item_matrix = ratings_df.pivot(index='user_id', columns='movie_id', values='ratings')
+    user_item_matrix = user_item_matrix.fillna(0)  # Fill missing values with zeros
+
+    print("USer Id from KNN : ", user_id_input)
+    print("User Item Matrix : ", user_item_matrix)
+
+    # Computet number of neighbors as a percentage of the number of users
+    percentage_of_users = 0.5  
+    k = max(1, int(percentage_of_users * len(user_item_matrix)))  
+
+    # Create the NearestNeighbors model and fit it to the user-item matrix 
+    metric = 'cosine'  
+    knn = NearestNeighbors(n_neighbors=k, metric=metric)
+
+    # Fit the model to the user-item matrix
+    knn.fit(user_item_matrix.values)
+
+    # User Id for which we need to generate the recommendations
+    user = int(user_id_input)
+
+    # Find the k-nearest neighbors of the user
+    distances, neighbor_indices = knn.kneighbors([user_item_matrix.loc[user].values], n_neighbors=k+1)  
+
+    # Extract movie recommendations from the neighbors
+    recommended_movie_indices = [i for i in neighbor_indices[0] if i != user]  # Exclude the user
+    recommended_movies = user_item_matrix.columns[recommended_movie_indices]
+
+    recommended_movies_data = []
+
+    cnx = create_connection()
+    cursor = cnx.cursor()
+
+    # Print the recommended movies
+    print("Recommended Movies:")
+    for movie_id in recommended_movies:
+        query = "SELECT * FROM movies WHERE id = %s"
+        cursor.execute(query, (movie_id,))
+        movie = cursor.fetchone()
+        recommended_movies_data.append(movie)
+
+    cursor.close()
+    cnx.close()
+
+    print("Recommendation Movies Data : ", recommended_movies_data)
+    return recommended_movies_data
+
+    
+
+@app.route('/movie_details/<title>')
+def movie_details(title):
+    try:
+        cnx = create_connection()
+        cursor = cnx.cursor()
+        
+        # Fetch movie details by title
+        query = "SELECT * FROM movies WHERE Title = %s"
+        cursor.execute(query, (title,))
+        movie = cursor.fetchone()
+
+        # Close the database connection
+        cursor.close()
+        cnx.close()
+
+        print("Movie : ", movie)
+
+        # Check if a user is logged in
+        user_id = session.get('user_id')
+        print("User ID : ", user_id)
+
+        if user_id:
+            print("User ID : ", user_id)
+            # Get recommended movies for the logged-in user
+            recommended_movies_data = knn_recommendation(user_id)
+            print("Recommended Movies Data : ", recommended_movies_data)
+            
+            # Get user's email (if available)
+            user_email = session.get('user_email')
+            
+            # Render the movie details page with recommendations
+            return render_template('movie_details.html', movie=movie, recommended_movies_data=recommended_movies_data, user_email=user_email)
+        
+        else:
+            print("False Condition")
+            # If no user is logged in, render the movie details page without recommendations
+            return render_template('movie_details.html', movie=movie)
+        
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+        # Return an error response if an exception occurs
+        return "Error occurred while retrieving movie details"
+
 
 
 # Function to convert the string representation to NumPy array
@@ -384,7 +576,11 @@ def recommend_movies():
 
     if user_input is None:
         print("From Initial")
-        return render_template('recommend.html', image_url=image_url)
+        try:
+            user_email = session.get('user_email')
+            return render_template('recommend.html', image_url=image_url, user_email=user_email)
+        except:
+            return render_template('recommend.html', image_url=image_url)
     else:
         print("Hello")
         user_query = preprocess_query(user_input)  # Call function to preprocess user input
@@ -411,7 +607,12 @@ def recommend_movies():
         top_n_movies_list = top_n_movies.to_dict(orient='records')  # Convert DataFrame to a list of dictionaries
     
         print("Top n movies : ", top_n_movies_list)
-        return render_template('recommend.html', image_url=image_url, user_input=user_input, top_n_movies=top_n_movies_list)
+
+        try:
+            user_email = session.get('user_email')
+            return render_template('recommend.html', image_url=image_url, user_input=user_input, top_n_movies=top_n_movies_list, user_email=user_email)
+        except:    
+            return render_template('recommend.html', image_url=image_url, user_input=user_input, top_n_movies=top_n_movies_list)
 
 
 

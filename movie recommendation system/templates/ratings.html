@@ -1,40 +1,79 @@
 {% extends "index.html" %}
 
 {% block content %}
-<link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='style.css') }}" />
 
+  <style>
+    .rating {
+      display: inline-block;
+      font-size: 0;
+    }
 
-<section class="container">
-  <div class="row justify-content-center">
-    <div class="col-md-6">
-      <div class="text-center">
-        <h2 class="text-warning mb-4">Rate the Movie - {{ movie_title }}</h2>
-      </div>
-      <div class="text-center">
-        <form action="/submit_rating" method="POST">
-          <input type="hidden" name="id" value="{{ id }}">
-          <input type="hidden" name="title" value="{{ movie_title }}">
-          <div class="rating">
-            <input type="radio" id="star5" name="rating" value="5">
-            <label for="star5"></label>
-            <input type="radio" id="star4" name="rating" value="4">
-            <label for="star4"></label>
-            <input type="radio" id="star3" name="rating" value="3">
-            <label for="star3"></label>
-            <input type="radio" id="star2" name="rating" value="2">
-            <label for="star2"></label>
-            <input type="radio" id="star1" name="rating" value="1">
-            <label for="star1"></label>
-          </div>
-          <div class="text-center mt-4">
-            <button type="submit" class="btn btn-secondary">Submit Rating</button>
-          </div>
-        </form>
+    .rating input {
+      display: none;
+    }
+
+    .rating label {
+      font-size: 24px;
+      padding: 5px;
+      cursor: pointer;
+    }
+
+    .rating label::after {
+      content: '\2605';
+      display: inline-block;
+    }
+
+    .rating label:hover:before,
+    .rating label:hover ~ label::before,
+    .rating input:checked ~ label::after {
+      color: yellow;
+    }
+  </style>
+
+  <section class="container">
+    <div class="row justify-content-center m-5">
+      <div class="col-md-6 bg-light p-5">
+        <div class="text-center">
+          <h2 class="mb-4">Rate the Movie: <b class="text-warning">{{ movie_title }}</b></h2>
+        </div>
+        <div class="text-center">
+          <form action="/submit_rating" method="POST">
+            <input type="hidden" name="id" value="{{ id }}">
+            <input type="hidden" name="title" value="{{ movie_title }}">
+             
+            <div class="rating">
+              <input type="radio" id="star1" name="rating" value="1">
+              <label for="star1"></label>
+              <input type="radio" id="star2" name="rating" value="2">
+              <label for="star2"></label>
+              <input type="radio" id="star3" name="rating" value="3">
+              <label for="star3"></label>
+              <input type="radio" id="star4" name="rating" value="4">
+              <label for="star4"></label>
+              <input type="radio" id="star5" name="rating" value="5">
+              <label for="star5"></label>
+
+            </div>
+            <div class="text-center mt-4">
+              <button type="submit" class="btn btn-secondary">Submit Rating</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
+  <script>
+    const ratingInputs = document.querySelectorAll('.rating input');
+
+    ratingInputs.forEach(input => {
+      input.addEventListener('click', (e) => {
+        const selectedRating = e.target.value;
+        console.log(`User selected rating: ${selectedRating}`);
+        // You can use JavaScript to further process the selected rating if needed
+      });
+    });
+  </script>
 
 {% endblock %}
-

@@ -2,73 +2,23 @@
 
 
 {% block content %}
-<div class="container m-5">
-  <div class="row ps-3">
-    <h2 class="text-warning">Top 20 Popular movies</h2> 
+<div class="container m-5 p-5">
+  <div class="row ms-5 ps-3">
+    <h2 class="text-warning">Top 10 Popular movies</h2> 
     <br>
   </div>
 
   <div class="grid-container">
-    <div class="row">
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Avatar</h2>
+    <div class="row m-5">
+    {% for movie in popular_movies %}
+      <div class="col-md-3 grid-item  pb-2">
+        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" height="250px">
+        <h4 class="text-white "> 
+          <a href="/movie_details/{{ movie[0] }}"> {{ movie[0] }} </a> 
+        </h4>
       </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Hercules</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Spider-man</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Batman Begins</h2>
-      </div>
-    </div>
-    
-    <!-- Repeat the above row for additional sets of four movies -->
-    
-    <div class="row">
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Aliens</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">James Bond</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">300</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Zombies</h2>
-      </div>
-    </div>
-    
-    <!-- Add more rows as needed for additional sets of four movies -->
-        
-    <div class="row">
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Aliens</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">James Bond</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">300</h2>
-      </div>
-      <div class="col-md-3 grid-item">
-        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png">
-        <h2 class="text-white">Zombies</h2>
-      </div>
-    </div>
+    {% endfor %}
+    </div>   
 
   </div>
   

@@ -1,0 +1,44 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+
+<div class="container mb-5">
+    <div class="row ms-5 mt-3 rounded">
+        <h3 class="text-warning"> <b> Movie Details </b> </h3>
+    </div>
+    <div class="row">
+        <div class="col-md-5">
+            <img class="card-img-top ms-5 mt-2 p-5 bg-white rounded" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" height="250px" alt="Movie Poster">
+        </div>
+        <div class="col-md-2"></div>
+        <div class="col-md-5 bg-dark text-white rounded">
+            <h4 class="p-3"> {{ movie[0] }} </h4>  
+            <p class="ps-3"> <b> Genre : </b> <span class="text-warning"> {{ movie[3] }} </span> </p>
+            <p class="ps-3"> Ratings : {{ movie[1] }} </p>
+            <p class="ps-3"> <b> Image URL : </b> <span class="text-warning"> {{ movie[2] }} </span> </p>
+        </div>
+
+    </div>
+
+    {% if recommended_movies_data %}
+        <div class="row ms-5 mt-5  mt-3">
+            <h3 class="text-warning"> Recommended Movies </h3>
+        </div>
+        <div class="row ms-5 mt-3">
+            {% for recommended_movie in recommended_movies_data %}
+            <div class="col-md-3 grid-item">
+                <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" height="180px" alt="Movie Poster">
+                <div class="movie-item">
+                  <h4><a href="/movie_details/{{ movie[0] }}">{{ recommended_movie[0] }}</a></h4>
+                  <p class="text-warning">Genre: {{ recommended_movie[1] }}</p>
+                  {% if user_email %}
+                  <a href="/rating/{{ movie[1] }}">Rate the movie</a>
+                  {% endif %}
+                </div>
+            </div>
+            {% endfor %}
+    {% endif %}
+</div>
+
+{% endblock %}

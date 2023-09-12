@@ -1,0 +1,28 @@
+{% extends 'index.html' %}
+
+
+{% block content %}
+
+<div class="container mb-5">
+
+    <div class="row">
+        <h4> Search Query : {{ user_input }} </h4>
+    </div>
+    <div class="row">
+    {% for movie in movies %}
+    <div class="col-md-3 grid-item">
+        <img class="card-img-top" src="https://m.media-amazon.com/images/S/sash/4FyxwxECzL-U1J8.png" height="250px" alt="Movie Poster">
+        <div class="movie-item">
+          <h4><a href="/movie_details/{{ movie[0] }}">{{ movie[0] }}</a></h4>
+          <p class="text-warning">Genre: {{ movie[3] }}</p>
+          {% if user_email %}
+          <a href="/rating/{{ movie[1] }}">Rate the movie</a>
+          {% endif %}
+        </div>
+    </div>
+    {% endfor %}
+    </div>
+
+</div>
+
+{% endblock %}
