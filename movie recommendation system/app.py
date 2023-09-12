@@ -208,9 +208,11 @@ def movie_rating(title):
     cnx.close()
     print("Movie : ", movie)
     movie_id = movie[4]
+    print("Movie ID : ", movie_id)
     
     try:
         user_email = session.get('user_email')
+    
         return render_template('ratings.html', movie_title=title, id=movie_id, user_email=user_email )
     except:
         return render_template('ratings.html', movie_title=title, id=movie_id )
@@ -453,11 +455,14 @@ def knn_recommendation(user_id_input):
     # Convert the ratings data into a DataFrame
     ratings_df = pd.DataFrame(ratings, columns=['rating_id', 'user_id', 'movie_id', 'ratings', 'timestamp'])
     print("Ratings Dataframe : ", ratings_df)
-    # Create a user-item matrix
-    user_item_matrix = ratings_df.pivot(index='user_id', columns='movie_id', values='ratings')
-    print("User Item Matrix : ", user_item_matrix)
+    # Check for and handle duplicate entries by averaging ratings
+    ratings_df = ratings_df.groupby(['user_id', 'movie_id'])['ratings'].mean().reset_index()
+    print("Ratings Dataframe  without Duplicate: ", ratings_df)
+
     # Fill missing values with zeros
     user_item_matrix = ratings_df.pivot(index='user_id', columns='movie_id', values='ratings')
+    print("User Item Matrix : ", user_item_matrix)
+
     user_item_matrix = user_item_matrix.fillna(0)  # Fill missing values with zeros
 
     print("USer Id from KNN : ", user_id_input)
@@ -507,6 +512,7 @@ def knn_recommendation(user_id_input):
 
 @app.route('/movie_details/<title>')
 def movie_details(title):
+    print("Title : ", title)
     try:
         cnx = create_connection()
         cursor = cnx.cursor()
@@ -515,6 +521,7 @@ def movie_details(title):
         query = "SELECT * FROM movies WHERE Title = %s"
         cursor.execute(query, (title,))
         movie = cursor.fetchone()
+        print("Movie in Details : ", movie)
 
         # Close the database connection
         cursor.close()
@@ -525,8 +532,10 @@ def movie_details(title):
         # Check if a user is logged in
         user_id = session.get('user_id')
         print("User ID : ", user_id)
+        user_email = session.get('user_email')
+        print("User Email : ", user_email)
 
-        if user_id:
+        if user_id is not None:
             print("User ID : ", user_id)
             # Get recommended movies for the logged-in user
             recommended_movies_data = knn_recommendation(user_id)
@@ -536,7 +545,7 @@ def movie_details(title):
             user_email = session.get('user_email')
             
             # Render the movie details page with recommendations
-            return render_template('movie_details.html', movie=movie, recommended_movies_data=recommended_movies_data, user_email=user_email)
+            return render_template('movie_details.html', movie=movie, recommended_movies=recommended_movies_data, user_email=user_email)
         
         else:
             print("False Condition")
