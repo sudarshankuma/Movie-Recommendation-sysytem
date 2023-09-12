@@ -16,7 +16,7 @@
           <h4><a href="/movie_details/{{ movie[0] }}">{{ movie[0] }}</a></h4>
           <p class="text-warning">Genre: {{ movie[3] }}</p>
           {% if user_email %}
-          <a href="/rating/{{ movie[1] }}">Rate the movie</a>
+          <a href="/rating/{{ movie[0] }}">Rate the movie</a>
           {% endif %}
         </div>
     </div>

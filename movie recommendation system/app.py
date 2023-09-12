@@ -170,6 +170,7 @@ def hello_world():
     try:
         cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 20")
         movies = cursor.fetchall()
+        print("Movies : ", movies)
 
         category_query = "SELECT DISTINCT Genre FROM movies"
         cursor.execute(category_query)
@@ -199,6 +200,7 @@ def movie_rating(title):
     # Fetch movie details from the database
     cnx = create_connection()
     cursor = cnx.cursor()
+    print("Title : ", title)
     query = "SELECT * FROM movies WHERE Title = %s"
     cursor.execute(query, (title,))
     movie = cursor.fetchone()
