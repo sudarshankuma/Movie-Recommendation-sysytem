@@ -12,7 +12,7 @@ from  recommendation_part.recommend import preprocess_query, get_average_vector,
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import math  
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -161,21 +161,33 @@ def fetch_datasets():
         return jsonify({'error': str(e)}), 500
 
 
+# Define the number of movies per page
+MOVIES_PER_PAGE = 20
 
 @app.route('/')
 def hello_world():
+    # Get the page number from the request's query parameters
+    page = request.args.get('page', default=1, type=int)
+    
     cnx = create_connection()
     cursor = cnx.cursor()
 
     try:
-        cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 20")
-        movies = cursor.fetchall()
-        print("Movies : ", movies)
+        # Calculate the offset based on the page number
+        offset = (page - 1) * MOVIES_PER_PAGE
 
-        category_query = "SELECT DISTINCT Genre FROM movies"
-        cursor.execute(category_query)
-        categories = cursor.fetchall()
-        print("Categories : ", categories)
+        # Fetch movies for the current page using LIMIT and OFFSET
+        cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT %s OFFSET %s", (MOVIES_PER_PAGE, offset))
+        movies = cursor.fetchall()
+
+        # Calculate the total number of movies (needed for pagination)
+        cursor.execute("SELECT COUNT(*) FROM movies")
+        total_movies = cursor.fetchone()[0]
+
+        # Calculate the total number of pages
+        total_pages = math.ceil(total_movies / MOVIES_PER_PAGE)
+
+        # You can adjust your other queries here (e.g., categories)
 
         if 'user_id' in session:
             user_id = session['user_id']
@@ -184,14 +196,46 @@ def hello_world():
             user_email = cursor.fetchone()[0]
             cursor.close()
             cnx.close()
-            return render_template('index.html', user_email=user_email, movies=movies, categories=categories)
+            return render_template('index.html', user_email=user_email, movies=movies, total_pages=total_pages, current_page=page)
         else:
             cursor.close()
             cnx.close()
-            return render_template('index.html', movies=movies, categories=categories)
+            return render_template('index.html', movies=movies, total_pages=total_pages, current_page=page)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return "Error occurred while retrieving movies"
+
+# @app.route('/')
+# def hello_world():
+#     cnx = create_connection()
+#     cursor = cnx.cursor()
+
+#     try:
+#         # cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 20")
+#         cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 100")
+#         movies = cursor.fetchall()
+#         print("Movies : ", movies)
+
+#         category_query = "SELECT DISTINCT Genre FROM movies"
+#         cursor.execute(category_query)
+#         categories = cursor.fetchall()
+#         print("Categories : ", categories)
+
+#         if 'user_id' in session:
+#             user_id = session['user_id']
+#             email_query = "SELECT email FROM users WHERE id = %s"
+#             cursor.execute(email_query, (user_id,))
+#             user_email = cursor.fetchone()[0]
+#             cursor.close()
+#             cnx.close()
+#             return render_template('index.html', user_email=user_email, movies=movies, categories=categories)
+#         else:
+#             cursor.close()
+#             cnx.close()
+#             return render_template('index.html', movies=movies, categories=categories)
+#     except Exception as e:
+#         print(f"An error occurred: {str(e)}")
+#         return "Error occurred while retrieving movies"
 
 
 
