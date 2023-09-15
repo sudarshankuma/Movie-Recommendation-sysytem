@@ -12,7 +12,7 @@ from  recommendation_part.recommend import preprocess_query, get_average_vector,
 
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import math  
 
 nltk.download('punkt')
 nltk.download('stopwords')
@@ -161,20 +161,33 @@ def fetch_datasets():
         return jsonify({'error': str(e)}), 500
 
 
+# Define the number of movies per page
+MOVIES_PER_PAGE = 20
 
 @app.route('/')
 def hello_world():
+    # Get the page number from the request's query parameters
+    page = request.args.get('page', default=1, type=int)
+    
     cnx = create_connection()
     cursor = cnx.cursor()
 
     try:
-        cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 20")
+        # Calculate the offset based on the page number
+        offset = (page - 1) * MOVIES_PER_PAGE
+
+        # Fetch movies for the current page using LIMIT and OFFSET
+        cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT %s OFFSET %s", (MOVIES_PER_PAGE, offset))
         movies = cursor.fetchall()
 
-        category_query = "SELECT DISTINCT Genre FROM movies"
-        cursor.execute(category_query)
-        categories = cursor.fetchall()
-        print("Categories : ", categories)
+        # Calculate the total number of movies (needed for pagination)
+        cursor.execute("SELECT COUNT(*) FROM movies")
+        total_movies = cursor.fetchone()[0]
+
+        # Calculate the total number of pages
+        total_pages = math.ceil(total_movies / MOVIES_PER_PAGE)
+
+        # You can adjust your other queries here (e.g., categories)
 
         if 'user_id' in session:
             user_id = session['user_id']
@@ -183,14 +196,46 @@ def hello_world():
             user_email = cursor.fetchone()[0]
             cursor.close()
             cnx.close()
-            return render_template('index.html', user_email=user_email, movies=movies, categories=categories)
+            return render_template('index.html', user_email=user_email, movies=movies, total_pages=total_pages, current_page=page)
         else:
             cursor.close()
             cnx.close()
-            return render_template('index.html', movies=movies, categories=categories)
+            return render_template('index.html', movies=movies, total_pages=total_pages, current_page=page)
     except Exception as e:
         print(f"An error occurred: {str(e)}")
         return "Error occurred while retrieving movies"
+
+# @app.route('/')
+# def hello_world():
+#     cnx = create_connection()
+#     cursor = cnx.cursor()
+
+#     try:
+#         # cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 20")
+#         cursor.execute("SELECT Genre, Title, Image_URL, Rating FROM movies LIMIT 100")
+#         movies = cursor.fetchall()
+#         print("Movies : ", movies)
+
+#         category_query = "SELECT DISTINCT Genre FROM movies"
+#         cursor.execute(category_query)
+#         categories = cursor.fetchall()
+#         print("Categories : ", categories)
+
+#         if 'user_id' in session:
+#             user_id = session['user_id']
+#             email_query = "SELECT email FROM users WHERE id = %s"
+#             cursor.execute(email_query, (user_id,))
+#             user_email = cursor.fetchone()[0]
+#             cursor.close()
+#             cnx.close()
+#             return render_template('index.html', user_email=user_email, movies=movies, categories=categories)
+#         else:
+#             cursor.close()
+#             cnx.close()
+#             return render_template('index.html', movies=movies, categories=categories)
+#     except Exception as e:
+#         print(f"An error occurred: {str(e)}")
+#         return "Error occurred while retrieving movies"
 
 
 
@@ -199,6 +244,7 @@ def movie_rating(title):
     # Fetch movie details from the database
     cnx = create_connection()
     cursor = cnx.cursor()
+    print("Title : ", title)
     query = "SELECT * FROM movies WHERE Title = %s"
     cursor.execute(query, (title,))
     movie = cursor.fetchone()
@@ -206,9 +252,11 @@ def movie_rating(title):
     cnx.close()
     print("Movie : ", movie)
     movie_id = movie[4]
+    print("Movie ID : ", movie_id)
     
     try:
         user_email = session.get('user_email')
+    
         return render_template('ratings.html', movie_title=title, id=movie_id, user_email=user_email )
     except:
         return render_template('ratings.html', movie_title=title, id=movie_id )
@@ -451,11 +499,14 @@ def knn_recommendation(user_id_input):
     # Convert the ratings data into a DataFrame
     ratings_df = pd.DataFrame(ratings, columns=['rating_id', 'user_id', 'movie_id', 'ratings', 'timestamp'])
     print("Ratings Dataframe : ", ratings_df)
-    # Create a user-item matrix
-    user_item_matrix = ratings_df.pivot(index='user_id', columns='movie_id', values='ratings')
-    print("User Item Matrix : ", user_item_matrix)
+    # Check for and handle duplicate entries by averaging ratings
+    ratings_df = ratings_df.groupby(['user_id', 'movie_id'])['ratings'].mean().reset_index()
+    print("Ratings Dataframe  without Duplicate: ", ratings_df)
+
     # Fill missing values with zeros
     user_item_matrix = ratings_df.pivot(index='user_id', columns='movie_id', values='ratings')
+    print("User Item Matrix : ", user_item_matrix)
+
     user_item_matrix = user_item_matrix.fillna(0)  # Fill missing values with zeros
 
     print("USer Id from KNN : ", user_id_input)
@@ -505,6 +556,7 @@ def knn_recommendation(user_id_input):
 
 @app.route('/movie_details/<title>')
 def movie_details(title):
+    print("Title : ", title)
     try:
         cnx = create_connection()
         cursor = cnx.cursor()
@@ -513,6 +565,7 @@ def movie_details(title):
         query = "SELECT * FROM movies WHERE Title = %s"
         cursor.execute(query, (title,))
         movie = cursor.fetchone()
+        print("Movie in Details : ", movie)
 
         # Close the database connection
         cursor.close()
@@ -523,8 +576,10 @@ def movie_details(title):
         # Check if a user is logged in
         user_id = session.get('user_id')
         print("User ID : ", user_id)
+        user_email = session.get('user_email')
+        print("User Email : ", user_email)
 
-        if user_id:
+        if user_id is not None:
             print("User ID : ", user_id)
             # Get recommended movies for the logged-in user
             recommended_movies_data = knn_recommendation(user_id)
@@ -534,7 +589,7 @@ def movie_details(title):
             user_email = session.get('user_email')
             
             # Render the movie details page with recommendations
-            return render_template('movie_details.html', movie=movie, recommended_movies_data=recommended_movies_data, user_email=user_email)
+            return render_template('movie_details.html', movie=movie, recommended_movies=recommended_movies_data, user_email=user_email)
         
         else:
             print("False Condition")
